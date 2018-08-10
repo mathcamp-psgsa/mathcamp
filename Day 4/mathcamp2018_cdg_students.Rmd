@@ -1,0 +1,1277 @@
+---
+title: "Math Camp - Probability and Distributions Code Session"
+output:
+  slidy_presentation: default
+  beamer_presentation:
+    keep_tex: yes
+    latex_engine: xelatex
+    slide_level: 2
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T)
+rm(list=ls())
+set.seed(43463253)
+# date: "`r format(Sys.Date(), "%B %d, %Y")`"
+```
+
+# Questions from Morning Session
+
+![](questions.png)
+
+# Types of Data
+
+**What are the four types of data?**
+
+# Types of Data
+
+**What are the four types of data?**
+
+- Categorical
+- Ordinal
+- Interval
+- Ratio
+
+<!--What is the difference between interval and ratio? -->
+
+# Types of data in R
+
+- We talk about data "class" in R
+- Class = category <!--Like in fantasy games, mage class, melee class, etc... -->
+- There are three main classes of data in R
+
+ 1. Numeric/Integer
+ 2. Factor
+ 3. Character
+
+# Numeric/Integer Data
+
+- Corresponds to Interval and Ratio data types
+- R does not differentiate between Interval and Ratio
+- R differentiates between _integer_ data and _numeric_ data
+- Integer data are whole numbers
+- Numeric data includes decimals
+
+# Numeric/Integer Data
+
+Let's make a vector object $x$ that is numbers from 0-10.  
+
+An **object** is anything you've saved in R.  It will appear in your working environment.
+
+A **vector** is a sequence of data elements of the same type.
+
+**Elements** are the components of a vector.
+
+# Numeric/Integer Data
+
+Okay, now that we know what a vector is, let's make one.
+
+```{r}
+x <- 0:10 # making x
+x # here is what I made.
+```
+
+These numbers are the elements/components of vector $x$. $x$ is an object.
+
+We use the $class$ function to find the data class of the object.
+
+```{r}
+class(x)
+```
+
+Because $x$ is an integer variable, we can get its mean.
+
+```{r}
+mean(x)
+```
+
+# Numeric/Integer Data
+
+Now let's make $x1$ numbers from -5 to 5.
+
+```{r}
+x1 <- -5:5
+x1
+class(x1)
+mean(x1)
+```
+
+R does not care that $x$ has a true 0 and $x1$ goes negative (interval vs ratio).  Both are integers.
+
+# Numeric/Integer Data
+
+Now let's make $y$ from -1 to 5, by 0.5 intervals.
+
+```{r}
+(y <- seq(-1,5,0.5)) # making  and showing y
+class(y)
+```
+
+Because $y$ is not whole numbers, R calls it "numeric" but not "integer".
+
+# Numeric/Integer Data
+
+Let's make another object called $x2$.  $x2$ will be $x$ but with one additional element, 10.5, added to the end of the vector.
+
+```{r}
+x2 <- c(x,10.5) # making x2
+x2 # notice the decimal points
+x # notice the lack of decimal points
+```
+
+The decimal points indicate that $x2$ is numeric.  We can also see that with the class function.
+
+```{r}
+class(x)
+class(x2)
+```
+
+R will automatically reclassify integer data as numeric when we add a non-integer.
+
+<!--
+# Numeric/Integer Data
+
+We can turn data into these types also.
+
+```{r}
+class(x)
+x3 <- as.numeric(x)
+class(x3)
+
+x <- integer(length=10)
+x
+class(x)
+```
+-->
+
+# Numeric/Integer Data
+
+Questions?
+
+# Factor Data
+
+Factor data corresponds to _categorical_ and _ordinal_ data.  
+
+Let's make some categorical data.
+
+```{r}
+(cats <- factor(c("small", "medium", "large", "ruh-roh")))
+class(cats)
+```
+
+# Factor Data
+
+"Numbers" can also be factor data, but R will not treat them like numeric/integer data.
+
+Let's make a _factor_ that is the numbers 7-10.
+
+```{r}
+(nums <- factor(c(7:10)))
+```
+
+**Show me the class of "nums"**
+
+```{r}
+# work here
+
+```
+
+# Factor Data
+
+R considers these categorical data and so cannot calculate a mean, even though this looks like numbers to us!
+
+```{r}
+mean(nums)
+```
+
+<!--If you have an issue calculating summary statistics for something you think is a number, this could be the problem. -->
+
+# Factor Data
+
+Now let's make that categorical data into ordinal data by telling R the order.
+
+```{r}
+cats # remember the categories.
+(cats2 <- ordered(cats, levels = c("small", "medium", "large", "ruh-roh")))
+```
+
+Notice the < signs indicate ordering in $cats2$.
+
+# Factor Data
+
+We can also make the $nums$ object into an ordered factor, but be careful to always set the ordering or you will get some surprises.  Remember, R does _not_ consider these as numbers.
+
+```{r}
+moreNums <- c(nums, "11") # add an 11 to the end of nums.
+(nums1 <- ordered(moreNums))
+(nums1 <- ordered(moreNums, levels=c(7,8,9,10,11)))
+```
+
+Even ordered, $nums1$ is still not numeric so R will still not calculate a mean.
+
+```{r}
+class(nums1)
+mean(nums1)
+```
+
+# Factor Data
+
+Easy factor mistakes.
+
+```{r}
+cats
+(mistake <- c(cats, "huge"))
+```
+
+As a factor, R thinks it knows the only possible categories of $cats$ and will not accept additions.
+
+```{r}
+levels(cats) # the only values it can take
+```
+
+# Factor Data
+
+This also applies to factors that look like numbers.
+
+```{r}
+nums
+(wrong <- c(nums, 11))
+```
+
+R will rename everything as "1st factor", "2nd factor", "3rd factor", etc, and then add the new factor level ("11") to that.
+
+<!--
+# Factor Data
+
+If we add 
+
+```{r}
+(df <- data.frame(cats=cats, nums=nums))
+(tobind <- c("huge", '11'))
+
+(df1 <- rbind(df, tobind))
+
+(tobind2 <- c("ruh-roh", "8"))
+df
+(df2 <- rbind(df, tobind2))
+```
+
+-->
+# Factor Data
+
+Factors can be annoying.
+
+The third type of data, "characters", does not add the constraints of factor variables and is easier to manipulate.
+
+# Character Data
+
+First thing: character data is not really data!
+
+It is just letters/numbers, a "character string".
+
+```{r}
+(string <- c("hello", "how are you", "I am fine"))
+class(string)
+```
+
+# Character Data
+
+We can add things to this!
+
+**Add "how's your family" to the string.**
+
+```{r}
+# work here
+
+```
+
+# Character Data
+
+Character data does not have levels.  The way to see all the response options is to make a table.
+
+```{r}
+levels(string)
+table(string)
+```
+
+
+<!--
+```{r, eval=F, include=F}
+ordered(works) # will still try to make it a factor if you tell it
+class(ordered(works))
+```
+-->
+
+# Character Data
+
+Numbers can be character variables.  As with factors, R will not consider these to be numbers with numeric properties, just symbols.
+
+```{r}
+(string1 <- c("1", "2", "3", "4"))
+class(string1)
+mean(string1) # these are not numbers
+```
+
+# Character Data
+
+We can still add things to it without a problem, both numbers and words.  It reads all of these things as characters without numeric properties.
+
+```{r}
+(yep <- c(string1, 10, "huge"))
+
+```
+
+# Changing Data Class
+
+You can change data class easily.  But be careful when changing!  You _almost always_ change something into a character before changing into a factor/numeric.
+
+```{r}
+nums; class(nums)
+as.numeric(nums) # uhoh!
+as.numeric(as.character(nums)) # there we go
+
+```
+
+# Let's practice!
+
+**Make a numeric vector of all even numbers from 0 to 100, including 0 and 100**
+
+```{r}
+# work here
+
+# try using the seq function.
+#?seq
+
+```
+
+# Let's practice!
+
+**Make an ordered factor from "mild" to "diablo" with a few other categories in between.**
+
+```{r}
+ # work here
+
+```
+
+# Types of data in R
+
+Questions?
+
+# Break
+
+When we return, we will cover random variables and (mostly) distributions.
+
+# Random Variable
+
+**What is a random variable?**
+
+# Random Variable
+
+**What is a random variable?**
+
+"Numerical measure of the outcome of a probability experiment whose value is determined by chance".
+
+This is **not** an algebraic variable with a single value.  $18 = 2 + 2x; x = 8$.  
+
+A "random variable" is a function that arises from a random process/random event.  It describes the possible outcomes of the random event and their probabilities.
+
+We can say that a random variable quantifies outcomes of a random event.
+
+# Random Variable
+
+**What is a random event?**
+
+# Random Variable
+
+**What is a random event?**
+
+An event with multiple potential outcomes, like a dice roll.  Rolling dice is a random process/random event.
+
+A random variable quantifies the outcomes of a random event.  It tells us what could happen when we roll dice.
+
+Rather than talking about a random variable as a single value, $x=8$, we talk about the probability that the random variable takes certain values, $P(X=6)$, or a range of values, $P(X<4)$.
+
+We need to quantify outcomes so that we can do mathematics on the outcomes.
+
+An event with just one potential outcome is _deterministic_ and not a random event.  Like water becoming gas at its boiling point.  It always happens and there is no other possible outcome.  Water never freezes at its boiling point.  Water never becomes peanut butter at its boiling point.
+
+
+# Random Variable
+
+Let's code a dice roll.
+
+```{r}
+# make the dice
+dice <- function(rolls)
+{
+  x <- sample(x = c(1:6), size = rolls, replace=TRUE)
+  return(x)
+}
+
+# now roll the dice
+dice(1)
+dice(1)
+dice(1)
+```
+
+
+# Random Variable
+
+Now let's roll it 10,000 times.
+
+```{r}
+diceRolls <- dice(10000) # rolling the dice
+mean(diceRolls) # average roll
+length(diceRolls) # number of rolls
+head(diceRolls) # show the first 6 rolls
+```
+
+This is a random event. The random variable assigns values to the outcomes of the random event.
+
+# Random Variable
+
+We rolled the dice 10,000 times and called it $diceRolls$.  
+
+We might want to know the probability of getting exactly a 4 or the probability of getting a 4 or higher on these dice rolls.
+
+# Random Variable
+
+Now let's code a rigged die that rolls a 1 1/3 of the time and a 6 only 1/12 of the time.
+
+```{r}
+dice_bad <- function(rolls)
+{
+  x <- sample(x = c(1:6), size = rolls, replace=T, prob=c(1/3,1/6,1/6,1/6,1/6,1/12))
+  return(x)
+}
+
+# now roll the dice
+dice_bad(1)
+dice_bad(1)
+dice_bad(1)
+```
+
+# Random Variable
+
+Now let's roll this rigged die 10,000 times.
+
+```{r}
+badRolls <- dice_bad(10000)
+tail(badRolls) # show the bottom 6
+```
+
+**Get the mean of all the rigged dice rolls.**
+
+```{r}
+# work here
+
+```
+
+# Random Variable
+
+Rolls of both of those dice rolls are _random events_.  A random event does not require all potential outcomes to occur with equal probability, it just requires that we cannot perfectly predict the outcome.
+
+When we can perfectly predict the outcome of an event, we could say this is a deterministic event.  
+
+In social science, we rarely have deterministic events!  That is why we use statistics and probability.
+
+We tend to care about random variables that are influenced by some other variable, such as intergroup contact influencing intergroup prejudice.  We can define these as random variables (high prejudice, low prejudice) and analyze how one influences the other.
+
+# Random Variable
+
+Questions?
+
+# Distributions
+
+**What is a distribution?**
+
+# Distributions
+
+**What is a distribution?**
+
+_A probability distribution is a table or an equation that links each outcome of a statistical experiment with its probability of occurrence._
+
+A description of the number of times each outcome occurs in a number of trials/observations.
+
+Examples:
+
+ 1. Amount of time each person in the world spends watching the World Cup.
+
+ 2. Height of people in the city of Champaign.
+
+# Distributions
+
+We have already made distributions for our dice rolls!
+
+```{r, fig.width=7, fig.height=5}
+hist(diceRolls)
+```
+
+This is a _discrete uniform distribution_.  Discrete because there are a set number of outcomes.  Uniform because each outcome occurs with equal probability.
+
+It describes the frequency with which we see each outcome.  
+
+In expectation, 10,000 rolls / 6 sides = 1,666.667 instances of each outcome.
+
+# Distributions
+
+Social and physical processes in the world are described by a variety of distributions.
+
+Distributions can be _discrete_ or _continuous_.
+
+Let's review some of the most common and see how to create them in R, starting with discrete distributions.  
+
+Remember that a discrete distribution is a distribution with a set number of outcomes.
+
+# Binomial Distribution
+
+**What is a binomial distribution?**
+
+# Binomial Distribution
+
+**What is a binomial distribution?**
+
+The distribution for a random event with outcomes that are just 1s and 0s.  Some number of coins flipped some number of times.
+
+**Using my code above for dice rolls, try to write a function for a coin flip!**
+
+```{r}
+# work here
+
+```
+
+**Randomly select someone to show us their function**
+
+```{r}
+people <- c("Matt", "Dylan", "CJ", "Seung-Uk"
+           , "Aleena", "Moon Young", "Jiyoung"
+           , "Jair", "Stephen"
+           )
+sample(people,1)
+```
+
+# Binomial Distribution
+
+Let's flip ten coins and see how many come up heads!
+
+```{r}
+# Using class's function
+
+```
+
+# Binomial Distribution
+
+Now let's flip 10 coins 10,000 times to get a binomial distribution.
+
+```{r}
+# with the function we've likely written
+#coinFlips <- mosaic::do(10000)*coins(10)
+
+# with rbinom
+coinFlips <- rbinom(n=10000, size=10, prob=0.5)
+hist(coinFlips)
+```
+
+This distribution shows us the number of times, out of 10,000, we observe a given number of heads.  Theoretically, we could observe as low as 0 heads and as high as 10 heads. <!--We almost never see 0 heads, we see 2 heads about 500 times (5%), se see 4 heads over 2,000 times, etc...  -->
+
+# Binomial Distribution
+
+Because the binomial distribution is so common, R has built-in functions for binomial distributions.  It does what we just coded above.  We'll use that from now on.
+
+```{r}
+coinFlips <- rbinom(n=10000, size=10, prob=0.5)
+hist(coinFlips)
+```
+
+When flipping 10 coins, often get 2 or 8 heads.
+
+# Binomial Distribution
+
+**What if we flipped 100 coins?  Would we often get 20 or 80 heads?**
+
+# Binomial Distribution
+
+Let's flip 100 coins.
+
+```{r}
+moreCoinFlips <- rbinom(n=10000, size=100, prob=0.5); theBinom <- moreCoinFlips
+hist(moreCoinFlips)
+range(moreCoinFlips)
+```
+
+# Binomial Distribution
+
+What if we flipped 1,000 coins?  Would we ever get 200 or 800 heads?
+
+```{r}
+manyMoreCoinFlips <- rbinom(n=10000, size=1000, prob=0.5)
+hist(manyMoreCoinFlips)
+range(manyMoreCoinFlips)
+```
+
+# Binomial Distribution
+
+Earlier today you also looked at density functions.
+
+Remember: the probability mass function, pmf $f(x)$, is the function that tells the probability that a given value will occur $P(X = x)$.
+
+```{r}
+# probability of getting 5 successes out of 10 trials -- probability mass function
+dbinom(x = 5, size = 10, prob=0.5)
+```
+
+Remember: the cumulative distribution function, CDF $F(x)$, is the function that tells us the cumulative probability that a given value or any value smaller than it will occur
+
+```{r}
+# probability of getting 5 or fewer successes out of 10 trials -- cumulative probability distribution function
+pbinom(q = 5, size=10, prob=0.5)
+
+```
+
+# Binomial Distribution
+
+Riddle me this (these) using the binom functions: 
+
+**What is the probability of getting exactly 10 heads out of 20 flips?**
+
+```{r}
+# work here
+```
+
+**What is the probability of getting 5 or fewer heads out of 20 flips?**
+
+```{r}
+# work here
+```
+
+# Binomial Distribution
+
+We can also look at the reverse.  Instead of asking how often an outcome as large as $X$ occurs, we can ask "which outcome happens $X%$ of the time?
+
+We use the "qbinom" function to ask R "how many successes occur at different points in the binomial distribution?"
+
+# Binomial Distribution
+
+Let's first look at this when we flip 100 coins.
+
+```{r}
+hist(moreCoinFlips)
+qbinom(p=0.5, size=100, prob=0.5) # the median is 50 heads
+qbinom(p=0.05, size=100, prob=0.5) # the 5th percentile still has 42% heads
+```
+
+# Binomial Distribution
+
+Now let's look at it when we flip 1,000 coins.
+
+```{r}
+hist(manyMoreCoinFlips)
+qbinom(p=0.05, size=1000, prob=0.5) # the 25th percentile still has ~47.4% heads
+
+```
+
+# Binomial Distribution
+
+We can also see a perfect/abstract version of the distribution using the dbinom function to calculate the $PDF$.  
+
+Let's look at the PDF of a binomial distribution where the probability of getting a success is 0.5 and we have one hundred trials.
+
+This is equivalent to flipping one hundred coins.  It shows us the probability of getting some number of heads in those hundred coin flips.
+
+```{r}
+binomPDF <- function(trials, prob)
+{
+  binomX <- seq(0,trials,1)
+  
+  plot(binomX, dbinom(x = binomX, size = trials, prob=prob), 
+     xlab="Binomial PDF", ylab="Density", type="l")
+}
+binomPDF(100,0.5)
+
+```
+
+This density plot is another way to look at these distributions.  It is generally most useful for continuous distributions because they make it seem like there are value between integers when there are not.
+
+# Binomial Distribubtion
+
+**Play around with the binomPDF function, trying different numbers of trials and different probabilities of getting a success.**
+
+```{r}
+# work here
+#binomPDF(trials=, prob=)
+
+```
+
+Notice that the binomial distribution often looks like a bell curve, but not always.  The bell curve is the "normal" distribution.  Sometimes a binomial distribution can be approximated by a normal distribution, but not always.  A lot of the statistics used in social science assume a normal distribution.
+
+# Binomial Distribution
+
+We can also see a perfect/abstract version of the CDF.  Let's look at the PDF of a binomial distribution where the probability of getting a success is 0.5 and we have ten trials.
+
+Remember, this is equivalent to flipping ten coins.  It shows us the probability of getting _at least_ some number of heads.
+
+```{r}
+binomCDF <- function(trials, prob)
+{
+  binomX <- seq(0,trials,1)
+  
+  plot(binomX, pbinom(q = binomX, size = trials, prob=prob), 
+     xlab="Binomial CDF", ylab="Density", type="l")
+}
+binomCDF(10,0.5)
+
+```
+
+# Binomial Distribution
+
+Again, play around with the binomCDF and see how changing the number of trials and probability of success changes the CDF.
+
+```{r}
+# work here
+#binomCDF()
+
+```
+
+# Bernoulli Distribution
+
+The Bernoulli distribution is a special type of binomial distribution.  
+
+It is a one-event binomial distribution.  Heads or tails. One coin.
+
+```{r}
+bern <- rbinom(n=10000, size=1,prob=0.5)
+hist(bern, breaks=2)
+
+```
+
+Yes/No events in the world that occur only one time per unit conform to this distribution.  Events such as voting in a particular election.
+
+# Bernoulli Distribution
+
+We can access the $pdf$ and $cdf$ by using the "binom" functions and setting size = 1.
+
+```{r}
+# probability of getting 1 success/heads on one flip  -- probability mass function
+dbinom(x = 1, size = 1, prob=0.5)
+
+# probability of getting 1 or fewer successes -- cumulative probability distribution function
+pbinom(q = 1, size=1, prob=0.5)
+```
+
+**Guess why this moves from 0 to 1 above 0.50**
+
+```{r}
+qbinom(p=0.5, size=1, prob=0.5)
+qbinom(p=0.5000000001, size=1, prob=0.5)
+```
+
+
+# Binomial Distribution
+
+Questions?
+
+# Poisson Distribution
+
+A Poisson distribution represents the number of times something happens in a fixed interval (often an amount of time).
+
+- How many goals scored in a soccer/football match
+- How many babies born in a year
+- How many bacteria multiply in a minute
+
+# Poisson Distribution
+
+Let's take draws from a Poisson distribution to simulate soccer goals.
+
+We tell R the number of matches $n$ and the number of goals scored in an average game $lambda$.
+
+```{r}
+# 10 matches, on average 5 goals per match
+rpois(n=10, lambda=5) 
+
+# 10 matches, on average 0.5 goals per match
+rpois(n=10, lambda=0.5)
+```
+
+# Poisson Distribution
+
+**If the average number of goals per game is 0.5, but we play 10,000 matches, how many goals do you think will be scored in the highest scoring match?**
+
+**If the average number of goals per game is 5, and we play 10,000 matches, how many goals do you think will be scored in the highest scoring match?**
+
+# Poisson Distribution
+
+**If the average number of goals per game is 0.5, and we play 10,000 matches, how many goals do you think will be scored in the highest scoring match?**
+
+
+```{r}
+#10000 matches, on average 0.5 goals per match
+
+```
+
+# Poisson Distribution
+
+**If the average number of goals per game is 5, and we play 10,000 matches, how many goals do you think will be scored in the highest scoring match?**
+
+```{r}
+#10000 matches, on average 5 goals per match
+(max(highPois <- rpois(n=10000, lambda=5)))
+```
+
+
+# Poisson Distribution
+
+Let's take a look a Poisson distribution visually.  
+
+For a Poisson distribution, we need to tell R how many trials occur and the average number of events per trial.
+
+This is equivalent to telling R how many soccer matches to simulate and how many goals to score in an average soccer match.  The graph tells us the expected number of goals given a specific number of soccer matches.
+
+```{r}
+poisPDF <- function(trials, lamb)
+{
+  poisX <- seq(0,trials,1)
+  
+  plot(poisX, dpois(x = poisX, lambda=lamb), 
+     xlab="Poisson PDF", ylab="Density", type="l",
+     xlim=c(0,max(5,lamb*5)))
+  
+  cbind(poisX[1:(min(10,length(poisX)))], dpois(x = poisX, lambda=lamb)[1:(min(10,length(poisX)))])
+  # graph it and print out the first ten values and probabilities
+}
+poisPDF(100,5)
+
+```
+
+
+# Poisson Distribution
+
+Now that we've seen the Poisson distribution, let's look at some data drawn from it.  We'll start with a 5 lambda and 10,000 trials that we made above.  We'll use a histogram because density plots don't always look good for discrete data.
+
+```{r}
+hist(highPois, xlim=c(0,15))
+#plot(density(highPois)) # does not look good for discrete data.
+```
+
+Poisson distributions often have a particular right-skewed look because they cannot drop below 0 but have no theoretical maximum.  The number of events that occurs in a given number of trials/amount of time cannot be negative, but it can be exceptionally large.
+
+
+# Poisson Distribution
+
+What does that 5 lambda distribution look like with only 30 observations?
+
+```{r}
+hist(highPois2 <- rpois(n=30, lambda=5), xlim=c(0,15))
+```
+
+This comes from the same distribution as the above $highPois$ histogram.  But that above has 10,000 observations.  This only has thirty observations.  Thirty is not really enough to look at this distribution and realize it is drawn from a Poisson with lambda 5.
+
+
+# Poisson Distribution
+
+Now let's look at a Poisson distribution with a lambda of 3 and 10,000 draws.
+
+```{r}
+medPois <- rpois(10000,3); thePois <- medPois
+hist(medPois)
+```
+
+Notice that it is even more right-skewed than the lambda 5 distribution.
+
+# Poisson Distribution
+
+Now a Poisson with a lambda of only 0.5.
+
+```{r}
+lowPois <- rpois(n=10000, lambda=0.5)
+
+hist(lowPois)
+
+```
+
+So right-skewed that it almost looks like an exponential distribution.
+
+
+# Poisson Distribution
+
+And here is an idealized version of that 0.5 lambda.
+
+```{r}
+poisPDF(10000,0.5)
+```
+
+# Poisson Distribution
+
+Now let's look at a Poisson with a lambda of 60.  For this, I think a density plot is more descriptive of the distribution.
+
+```{r}
+plot(density(rpois(10000,60)))
+hist(rpois(10000,60))
+```
+
+These distributions can vary greatly, depending on their characteristics.  This one almost looks like a normal distribution, which we will cover in the section on continuous distributions.
+
+# Poisson Distribution
+
+**Using the dpois and ppois functions, tell me (1) the probability of getting exactly 5 goals in a match where 5 goals is lambda, and (2) the probability of getting at least 5 goals in a match where 5 goals is lambda.**
+
+```{r}
+#work here
+
+```
+
+
+# Discrete Distributions
+
+Questions?
+
+
+# Distributions - Continuous
+
+We went through some of the most common discrete distributions: Discrete Uniform, Binomial, Bernoulli, Poisson.
+
+Now let's look at some of the most common continuous distributions.  Remember, a continuous distribution is a distribution with an infinite number of outcomes.
+
+Though most outcomes in the world are discrete, we often treat them as continuous to make our lives easier.  GDP, Feelings Thermometers, etc do not really have an infinite number of outcomes, but they are close enough to approximate continuous distributions.
+
+Two things we tend to care most about are represented by continuous distributions.
+
+ 1. We tend to care about the "Average Treatment Effect" (ATE) of some phenomenon.  The ATE should always be a continuous distribution.
+
+ 2. We also care about the uncertainty around that ATE.  The uncertainty, represented by standard errors or p-values, are also continuous distributions.
+
+# Uniform Distribution
+
+A continuous uniform distribution is a distribution with an infinite set of outcomes that occur with equal probability.  Earlier we discussed the discrete uniform distribution with dice rolls.
+
+P-values take a continuous uniform distribution.  The amount of time you have to wait at the bus stop could also take the form of a continuous uniform distribution.
+
+Let's look at the probability density function for a uniform distribution.
+
+# Uniform Distribution
+
+```{r}
+unifPDF <- function(themin,themax)
+  {
+  unifX <- seq(themin,themax,.01)
+  
+  plot(unifX, dunif(x = unifX, min=themin,max=themax), 
+     xlab="Uniform PDF", ylab="Density/Percent Selected", type="l",
+     xlim=c(themin,themax), ylim=c(0,(1/themax)*2))
+  polygon(x=c(themin,themin,themax,themax), y=c(themin, 1/themax, 1/themax, themin), 
+          col="grey")
+  
+}
+unifPDF(themin=0, themax=1)
+```
+
+Yep.  Every number has an equal probability of being selected.  Play around with that all you want and the shape will not change.
+
+# Uniform Distribution
+
+Now let's take draws from a uniform distribution and look visually.
+
+To take random draws from a uniform distribution, we need to tell R how many draws we want to make, the minimum possible value, and the maximum possible value.
+
+```{r}
+bigUnif <- runif(n=10000,min=0,max=1); theUnif <- bigUnif
+plot(density(bigUnif), ylim=c(0,2))
+```
+
+Due to randomness, even with lots of draws, draws from a uniform distribution will not yield an exactly straight line.  But it's pretty close.
+
+
+# Uniform Distribution
+
+**Using the punif function for a uniform distribution from 0 to 1, tell me how often we should draw a number 0.5 or smaller.**
+
+```{r}
+#work here
+
+```
+
+# Uniform Distribution
+
+In our actual uniform distribution, how often do we draw a number 0.5 or smaller?
+
+```{r}
+plot(density(bigUnif))
+abline(v=0.5)
+mean(bigUnif<=0.5)
+```
+
+Observed distributions differ slightly from their perfect/abstract distributions because of randomness.
+
+# Uniform Distribution
+
+**How often will we draw a number 0.5 or less on only 10 draws from a uniform distribution?**
+
+```{r}
+#work here
+
+```
+
+
+# Uniform Distribution
+
+Most of yours probably did not look very uniform.
+
+Remember, the fewer draws from the distribution, the less the data look like the distribution.  Sampling from a distribution only starts to resemble the actual distribution after a high number of draws, 30+.
+
+# Uniform Distribution
+
+Questions?
+
+
+# Normal Distribution
+
+As the name implies, the normal distribution represents most physical and social phenomena.  This is also called the Gaussian Distribution.
+
+Most ATEs are normal/Gaussian.  Many physical phenomenon form a normal distribution: height, weight, brain size, petal size of a flower, red/white blood cell counts, lots of things.
+
+Let's look at a normal distribution visually.
+
+```{r}
+norm.fun <- function(themean, thesd)
+{
+  normX <- seq(-5,5,.01)
+  plot(normX,dnorm(normX, mean=themean, sd=thesd), xlab="Normal Distribution", ylab="Density", type="l", xlim=c(-5,5), ylim=c(0,0.4))
+
+}
+norm.fun(0,1)
+
+```
+
+Play around with that to see how the normal distribution changes.
+
+# Standard Normal Distribution
+
+There is a special type of normal distribution we tend to work with: the standard normal.  This is a normal distribution with mean = 0 and sd = 1.
+
+```{r}
+norm.fun(0,1)
+```
+
+# Normal Distribution
+
+**Practice taking draws from a normal distribution.  Take 10,000 draws from a normal distribution with mean 0 and sd 1, then plot it.**
+
+```{r}
+# use ?rnorm if you need help
+
+
+```
+
+# Normal Distribution
+
+As with the other distributions, R has built in functions to tell us about an idealized normal distribution.
+
+$dnorm$ tells us what percentage of the distribution is at a certain point (technically, an interval around that point because you cannot calculate one point out of an infinite number of points). 
+
+```{r}
+dnorm(0, mean=0, sd=1)
+```
+
+# Normal Distribution
+
+$pnorm$ tells us what percentage of the distribution is at or below a certain point.
+
+```{r}
+pnorm(0, mean=0, sd=1)
+```
+
+# Distributions
+
+Questions?
+
+# Descriptive Statistics
+
+Descriptive statistics are characteristics of distributions.  
+
+These are often what we care about in quantitative social science.
+
+# Expected Value/Mean
+
+The average value.
+
+```{r}
+x <- c(0:100, seq(100,200,10))
+mean(x)
+```
+
+# Median and Mode
+
+The middle value and the value that appears most often.
+
+```{r}
+median(x)
+```
+
+There is not actually an easy way to calculate mode in R!
+
+```{r}
+tail(sort(table(x)))
+```
+
+
+# Quantiles
+
+The value at different parts of the distribution.
+
+```{r}
+quantile(x, c(0.25, 0.50, 0.75))
+```
+
+# Summary
+
+The summary function gives lots of nice information.
+
+```{r}
+summary(x)
+```
+
+
+# Range and Sum
+
+The min and max values.
+
+```{r}
+range(x)
+```
+
+The sum of all the values.
+
+```{r}
+sum(x)
+```
+
+# Inter-Quartile Range, Standard Deviation, and Variance
+
+These are all measures of dispersion.
+
+**Inter-Quartile Range** is the size of the middle 50% of the distribution.  How big is the area between 25th and 75th percentile?
+
+```{r}
+IQR(x)
+```
+
+**Standard deviation** is the distribution's average distance from the mean.  Low values indicate the data are all clustered near the mean, high values mean the data are very far from the mean.
+
+```{r}
+sd(x)
+```
+
+**Variance** is standard deviation squared.
+
+```{r}
+var(x)
+sd(x)^2
+```
+
+# Correlation and Covariance
+
+Correlation is the relationship between two variables.  The _correlation coefficient_ represents how much of the variance in one variable is due to another variable.
+
+It ranges from -1 to +1.  At 0 the variables are unrelated.  At high values one variable increases as the other increases.  At low values one variable decreases as the other increases.  At 1 or -1 one variable completely determines the other.
+
+```{r}
+y <- x+rnorm(length(x)) # basically still x
+y2 <- x+100*rnorm(length(x)) # fairly different from x
+z <- rnorm(length(x)) # no relationship to x
+cor(x,y)
+cor(x,y2)
+cor(x,z)
+```
+
+# Correlation and Covariance
+
+Covariance is like an unstandardized correlation.  It is larger when two variables are more correlated, but the overall variance of the outcomes also makes the covariance larger.
+
+In this example, we know $x$ & $y$ are the most similar, but the covariance of $x$ and $y2$ is high despite lower correlation because $y2$ has a very high internal variance.
+
+```{r}
+cov(x,y)
+cov(x,y2)
+cov(x,z)
+```
+
+# Correlation and Covariance
+
+We can divide the covariance by the joint standard deviation to get the correlation.
+
+```{r}
+cov(x,y)/(sd(x)*sd(y))
+cor(x,y)
+
+cov(x,y2)/(sd(x)*sd(y2))
+cor(x,y2)
+```
+
+# Correlation and Covariance
+
+```{r}
+plot(x,y, main="Almost Perfect Correlation")
+plot(x,y2, main="Fairly Strong Correlation")
+plot(x,z, main= "No Correlation")
+```
+
+
+# Practice Descriptive Stats
+
+I want each of you to get these descriptive stats for the distributions we created earlier.
+
+```{r}
+dists <- ls(pattern = "^the")
+
+cbind(sample(people), sample(dists, length(people), replace=T))
+```
+
+# Group Differences
+
+In social and physical sciences we often want to know if one group is "different" from another.
+
+Medical: did this drug make these people healthier.
+
+Political: did these voter turnout campaigns make this group more likely to vote?
+
+We are really asking: is the distribution of Group1 different from the distribution of Group2?
+
+Most of quantitative political analysis is trying to answer that question, and that is what you will embark upon in your methods courses.
+
+# Conclusion
+
+ 1. R takes numeric, factor, or character data
+
+ 2. We are concerned about random variables and random events
+
+     - A random event is any event in which the outcome is not predetermined
+     - This does not mean each potential outcome occurs with equal probability. A weighted coin or rigged dice are still random events
+     - A random variable describes the potential outcomes of a random event
+
+ 3. Distributions describe the frequency at which outcomes occur in random (or non-random) events
+ 
+ 4. Discrete distributions are when there are a set number of outcomes
+ 
+ 5. Continuous distributions are when there are an infinite number of outcomes
+ 
+ 6. Descriptive statistics tell us characteristics of distributions
+
+# Conclusion
+
+Questions?
+
+# Conclusion
+
+Thank you, we are done!
+
+![](picard.jpg)
+
+More on objects and classes: https://www.r-bloggers.com/classes-and-objects-in-r/
+
+More on random variables: https://www.khanacademy.org/math/statistics-probability/random-variables-stats-library/random-variables-discrete/v/random-variables
+
+More on probability distributions: https://www.khanacademy.org/math/ap-statistics/random-variables-ap/discrete-random-variables/v/discrete-probability-distribution
+
+Small R Intro: https://www.burns-stat.com/documents/tutorials/impatient-r/
+
+More on R: https://www.burns-stat.com/documents/books/the-r-inferno/
