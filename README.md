@@ -1,4 +1,4 @@
-# mathcamp
+# mathcamp2018
 
 Math Camp 2018 Repository
 
